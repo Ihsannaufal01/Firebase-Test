@@ -1,23 +1,38 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
+import cong from './configuration';
+import { getDatabase, ref, onValue } from 'firebase/database';
 import './App.css';
 
 function App() {
+  const [data, setData] = useState ([]);
+
+  useEffect (() => {
+    const database = getDatabase(cong);
+
+    const collectionRef = ref(database, "my_location");
+    
+    const fetchData = () => {
+      onValue (collectionRef, (snapshot) =>{
+        const dataItem = snapshot.val();
+
+        if (dataItem) {
+          const displayItem = Object.values(dataItem);
+          setData(displayItem); 
+        }
+      });
+    };
+
+    fetchData(); 
+  }, []);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <h1>Data From Database </h1>
+      <ul>
+        {data.map((item, index)=> (
+          <li key={index}>{item}</li>
+        ))}
+      </ul>
     </div>
   );
 }
